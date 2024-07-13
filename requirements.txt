@@ -1,0 +1,6 @@
+beautifulsoup4==4.12.3
+openai==1.35.13
+pandas==2.2.2
+requests==2.32.3
+streamlit==1.36.0
+streamlit_option_menu==0.3.13

@@ -114,4 +114,3 @@ def weekly_paper(output_path=''):
         for en_article in en_articles_content:
             zh = deepseek.translate_en_zh(en_article)
             f.write(zh + '\n\n')
-

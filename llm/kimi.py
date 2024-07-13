@@ -40,6 +40,22 @@ def chat_pdf(message: str, file_content) -> str:
     return completion.choices[0].message.content
 
 
-def extract_file(file_path: str):
+def upload_file(file_path: str) -> str:
     file_object = client.files.create(file=Path(file_path), purpose="file-extract")
-    return client.files.content(file_id=file_object.id).text
+    return file_object.id
+
+
+def extract_file(file_id: str):
+    return client.files.content(file_id=file_id).text
+
+
+def list_files():
+    file_list = client.files.list()
+    # 要用到的应该就俩属性: id, filename
+    return file_list.data
+
+
+def remove_file(file_id: str):
+    client.files.delete(file_id=file_id)
+    print('remove success')
+

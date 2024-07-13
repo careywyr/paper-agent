@@ -41,5 +41,6 @@ def extract_yy_text(text):
 
 
 def translate_en_zh(text):
+    print('执行翻译')
     s = chat(text, prompt_template.en_zh)
     return extract_yy_text(s)

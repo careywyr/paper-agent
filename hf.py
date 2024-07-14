@@ -23,7 +23,7 @@ class Article:
 def en_content(article: Article):
     return f"""
 ## {article.title}
-![{article.title}]({article.arxiv_link})
+[{article.title}]({article.arxiv_link})
 {article.abstract}
 """
 
@@ -114,3 +114,6 @@ def weekly_paper(output_path=''):
         for en_article in en_articles_content:
             zh = deepseek.translate_en_zh(en_article)
             f.write(zh + '\n\n')
+
+
+weekly_paper()

@@ -52,13 +52,12 @@ def home_parse(url):
                 likes_div = item
                 break
         likes = int(likes_div.get_text(strip=True))
-
+        if likes < 25:
+            break
         print(f"Title: {title}")
         print(f"Link: {link}")
         print(f"Likes: {likes}")
         print("------")
-        if likes < 25:
-            continue
         one = {'title': title, 'link': base_url + link, 'likes': likes}
         article_list.append(one)
     return article_list

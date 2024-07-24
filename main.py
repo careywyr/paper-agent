@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@file    : arxiv.py
+@file    : arxiv_client.py
 @date    : 2024-07-11
 @author  : leafw
 """

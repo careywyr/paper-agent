@@ -8,7 +8,7 @@
 from openai import OpenAI
 import os
 import prompt_template
-import re
+from utils import extract_yy_text
 
 deepseek_key = os.environ.get('DEEPSEEK_KEY')
 client = OpenAI(api_key=deepseek_key, base_url="https://api.deepseek.com")
@@ -27,20 +27,31 @@ def chat(message: str, system_prompt: str = "You are a helpful assistant") -> st
     return response.choices[0].message.content
 
 
-def extract_yy_text(text):
-    # 使用正则表达式匹配 "### 意译" 后面的文本
-    pattern = r'### 意译\s*(```)?(.+?)(```)?(?=###|\Z)'
-    match = re.search(pattern, text, re.DOTALL)
+def chat_pdf(message: str, file_content) -> str:
+    messages = [
+        {
+            "role": "system",
+            "content": prompt_template.paper_system
+        },
+        {
+            "role": "system",
+            "content": file_content,
+        },
+        {"role": "user", "content": message},
+    ]
 
-    if match:
-        # 提取匹配的文本，去除可能存在的 ``` 符号
-        extracted_text = match.group(2).strip()
-        return extracted_text
-    else:
-        return "未找到意译部分"
+    completion = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=messages,
+        temperature=0.3,
+        stream=False
+    )
+    return completion.choices[0].message.content
 
 
 def translate_en_zh(text):
     print('执行翻译')
     s = chat(text, prompt_template.en_zh)
     return extract_yy_text(s)
+
+

@@ -10,12 +10,12 @@ import pojo
 from llm import kimi, deepseek
 from prompt_template import paper_questions
 import streamlit as st
-from bs4 import BeautifulSoup
 import pandas as pd
 from streamlit_option_menu import option_menu
 import os
 import utils
 from pojo import ArxivData
+from api import arxiv_client
 
 data_dir = './data'
 
@@ -51,22 +51,16 @@ def download(url):
 
 
 def parse_home(url: str) -> dict:
-    response = requests.get(url)
-    html_content = response.text
-
-    # 解析HTML内容
-    soup = BeautifulSoup(html_content, 'html.parser')
-    title = soup.find('h1', class_='title mathjax').text
-    abstract = soup.find('blockquote', class_='abstract mathjax').text
+    arxiv_data = arxiv_client.search_by_url(url)
 
     # 持久化
     file_path, arxiv_id = download(url)
-    arxiv_data = ArxivData(file_path, arxiv_id, title, abstract)
+    arxiv_data.file_path = file_path
     arxiv_data.save_to_json()
 
     return {
-        "title": title,
-        "abstract": abstract,
+        "title": arxiv_data.title,
+        "abstract": arxiv_data.abstract,
         "file_path": file_path,
         "arxiv_id": arxiv_id
     }
@@ -88,7 +82,25 @@ def trans(title: str, abstract: str, arxiv_id: str) -> str:
     return translated
 
 
-def chat(index: int, file_id: str, file_path: str, arxiv_id: str) -> (str, str):
+def chat_not_kimi(index: int, file_id: str, file_path: str, arxiv_id: str) -> (str, str):
+    arxiv_data = get_data_from_arxiv_id(arxiv_id)
+    if arxiv_data is None:
+        return '系统异常'
+    if arxiv_data.content is None or len(arxiv_data.content) == 0:
+        file_content = utils.read_pdf(arxiv_data.file_path)
+        arxiv_data.content = file_content
+        arxiv_data.save_to_json()
+    question = paper_questions[index]
+    if arxiv_data.faq is not None and arxiv_data.faq.get(question):
+        return file_id, arxiv_data.faq.get(question)
+    answer = deepseek.chat_pdf(question, arxiv_data.content)
+    print(answer)
+    arxiv_data.faq[question] = answer
+    arxiv_data.save_to_json()
+    return file_id, answer
+
+
+def chat_by_kimi(index: int, file_id: str, file_path: str, arxiv_id: str) -> (str, str):
     arxiv_data = get_data_from_arxiv_id(arxiv_id)
     if arxiv_data is None:
         return '系统异常'
@@ -189,10 +201,10 @@ def home():
                     submitted = st.form_submit_button("生成")
                     if submitted:
                         with st.spinner("生成中，请稍候..."):
-                            _, result = chat(i, st.session_state.file_id, st.session_state.file_path,
-                                             st.session_state.arxiv_id)
+                            _, result = chat_not_kimi(i, st.session_state.file_id, st.session_state.file_path,
+                                                     st.session_state.arxiv_id)
                             st.session_state.responses[i] = result
-                            st.experimental_rerun()
+                            st.rerun()
 
 
 # 定义设置页面

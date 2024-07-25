@@ -12,9 +12,6 @@ from datetime import datetime
 
 aminer_key = os.environ.get('AMINER_KEY')
 
-# 设置URL
-
-
 # 设置请求头
 headers = {
     'Authorization': aminer_key

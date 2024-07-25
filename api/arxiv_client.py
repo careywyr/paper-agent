@@ -5,23 +5,22 @@
 @author  : leafw
 """
 import arxiv
-from db.entity import Paper
-from datetime import datetime
+from urllib.parse import urlparse
+from pojo import ArxivData
+
 
 # Construct the default API client.
 client = arxiv.Client()
 
 
-def search_by_id(arxiv_id: str) -> Paper | None:
+def search_by_id(arxiv_id: str) -> ArxivData | None:
     # Search for the paper with the given ID
     id_search = arxiv.Search(id_list=[arxiv_id])
 
     try:
         # 只拿第一个
         result = next(client.results(id_search))
-        paper = Paper(title=result.title, abstract=result.summary, authors=','.join([a.name for a in result.authors]),
-                      href=result.links[0].href, type='arxiv', create_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        return paper
+        return ArxivData('', arxiv_id, result.title, result.summary)
     except StopIteration:
         # Handle the case where no result is found
         print(f"No paper found with ID {arxiv_id}")
@@ -31,5 +30,9 @@ def search_by_id(arxiv_id: str) -> Paper | None:
     return None
 
 
-p = search_by_id("2405.16506")
-print(p.abstract)
+def search_by_url(url: str) -> ArxivData | None:
+    parsed_url = urlparse(url)
+    # 获取路径的最后一个部分
+    arxiv_id = parsed_url.path.split('/')[-1]
+    return search_by_id(arxiv_id)
+

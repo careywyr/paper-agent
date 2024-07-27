@@ -8,6 +8,8 @@ import os
 import pymupdf
 import re
 
+data_dir = './data'
+
 
 def ensure_directory_exists(directory_path: str):
     if not os.path.exists(directory_path):
@@ -40,3 +42,7 @@ def read_pdf(file_path: str) -> str:
 
     combined_text = "\n".join(all_text)
     return combined_text
+
+
+def arxiv_dir_path(arxiv_id: str, root_dir: str = data_dir) -> str:
+    return root_dir + os.sep + arxiv_id

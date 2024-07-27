@@ -3,12 +3,11 @@
 @file    : aminer.py
 @date    : 2024-07-24
 @author  : leafw
+本项目未使用，但是个很有用的网站
 """
 
 import os
 import requests
-from db.entity import Paper
-from datetime import datetime
 
 aminer_key = os.environ.get('AMINER_KEY')
 
@@ -25,10 +24,10 @@ def search(title):
         return
     aminer_paper_id = simple_result['id']
     result = search_by_id(aminer_paper_id)
-    paper = Paper(title=result['title'], abstract=result['abstract'],
-                  authors=','.join([a.name for a in result['authors']]),
-                  type='aminer', create_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    return paper
+    return {
+        "title": result['title'],
+        "abstract": result['abstract']
+    }
 
 
 def simple_search(title):
@@ -65,5 +64,3 @@ def search_by_id(aminer_paper_id: str):
         print(response.text)
         return None
 
-
-search_by_id('66553aff01d2a3fbfc9fcf3a')

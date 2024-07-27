@@ -73,3 +73,13 @@ paper_questions = [
 paper_system = f"""
 你是一名资深科研工作者，擅长阅读各种中英文文献，能准确地根据文献内容回答用户的问题。
 """
+
+
+def build_paper(content: str, question: str) -> str:
+    return f"""
+    以下是论文的全文:
+    {content}
+    
+    请你回答我的问题:
+    {question}
+    """

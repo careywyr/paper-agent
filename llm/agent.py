@@ -5,8 +5,8 @@
 @author  : leafw
 """
 from llm.model import LLM
-import re
 import prompt_template
+import utils
 
 
 class Agent:
@@ -14,7 +14,7 @@ class Agent:
         self.llm = llm
         self.desc = desc
 
-    def run(self):
+    def run(self, **kwargs):
         pass
 
 
@@ -22,19 +22,14 @@ class TranslaterAgent(Agent):
     def __init__(self, llm: LLM):
         super().__init__(llm, "翻译智能体")
 
-    def translate_en_zh(self, text):
+    def run(self, text):
         s = self.llm.chat(text, prompt_template.en_zh)
-        return extract_yy_text(s)
+        return utils.extract_yy_text(s)
 
 
-def extract_yy_text(text):
-    # 使用正则表达式匹配 "### 意译" 后面的文本
-    pattern = r'### 意译\s*(```)?(.+?)(```)?(?=###|\Z)'
-    match = re.search(pattern, text, re.DOTALL)
+class PaperAnswerAgent(Agent):
+    def __init__(self, llm: LLM):
+        super().__init__(llm, "Paper 问答")
 
-    if match:
-        # 提取匹配的文本，去除可能存在的 ``` 符号
-        extracted_text = match.group(2).strip()
-        return extracted_text
-    else:
-        return "未找到意译部分"
+    def run(self, question, file_content):
+        return self.llm.chat_pdf(question, file_content)

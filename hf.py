@@ -8,9 +8,12 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from llm import deepseek
+from llm.model import OpenAiLlm
+from llm.agent import TranslaterAgent
 
 base_url = 'https://huggingface.co'
+deepseek = OpenAiLlm('deepseek')
+trans_agent = TranslaterAgent(deepseek)
 
 
 class Article:
@@ -111,7 +114,7 @@ def weekly_paper(output_path=''):
     # 我只要这个
     with open(output_path, 'w') as f:
         for en_article in en_articles_content:
-            zh = deepseek.translate_en_zh(en_article)
+            zh = trans_agent.run(en_article)
             f.write(zh + '\n\n')
 
 

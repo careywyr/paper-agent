@@ -10,8 +10,6 @@ import json
 class ArxivData:
     def __init__(self, file_path: str, arxiv_id: str, title: str, abstract: str, file_id: str = '',
                  title_abstract_cn: str = '', content: str = '', faq=None):
-        if faq is None:
-            faq = {}
         self.file_path = file_path
         self.arxiv_id = arxiv_id
         self.title = title
@@ -19,7 +17,7 @@ class ArxivData:
         self.file_id = file_id
         self.title_abstract_cn = title_abstract_cn
         self.content = content
-        self.faq = faq
+        self.faq = faq if faq is not None else {}
 
     def to_dict(self):
         return {

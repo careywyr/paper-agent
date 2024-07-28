@@ -25,8 +25,8 @@ llm_config = {
     },
     "qwen": {
         "model_name": "qwen2",
-        'api_key': '',
-        "base_url": "https://2001-34-125-230-76.ngrok-free.app"
+        'api_key': '不用填',
+        "base_url": "ollama的地址"
     }
 }
 

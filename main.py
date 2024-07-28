@@ -145,8 +145,8 @@ def export_md(arxiv_id: str):
     with open(md_template_path, 'r', encoding='utf-8') as f:
         template = f.read()
 
-
-    template_format = template.format(title=arxiv_data.title, abstract=arxiv_data.abstract, title_abstract_cn=arxiv_data.title_abstract_cn)
+    template_format = template.format(title=arxiv_data.title, abstract=arxiv_data.abstract,
+                                      title_abstract_cn=arxiv_data.title_abstract_cn)
     faq = arxiv_data.faq
     for key, value in faq.items():
         item = '### ' + key + '\n' + value + '\n\n'

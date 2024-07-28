@@ -18,23 +18,41 @@
 
 此脚本依赖的模型是 `deepseek`。 翻译 prompt 来自于微博上宝玉老师的分享。
 
-## 2. Arxiv Helper
+## 2. Arxiv Helper (0.0.2版本做了大幅度的调整，不再默认使用kimi)
 
-这个使用 `streamlit` 做了前端，输入框里面输入 arxiv 论文的首页地址，回车即可得到它的标题和摘要，左侧可以进行翻译，右侧是[论文十问](http://leafw.cn/2023/12/25/%e5%88%86%e4%ba%ab%e4%b8%a4%e4%b8%aa%e9%98%85%e8%af%bb%e8%ae%ba%e6%96%87%e7%9a%84%e6%96%b9%e6%b3%95/)的模板，使用 `kimi` 的接口进行问答。
+这个使用 `streamlit` 做了前端，输入框里面输入 arxiv 论文的首页地址，回车即可得到它的标题和摘要。
 
-![img.png](img.png)
+0.0.1版本用的是网页爬虫，0.0.2版本用的arxiv api，速度似乎比爬虫慢一点，但应该更稳定些。
 
-对pdf的读写是依赖于kimi的基于文件的问答，因此会上传文件到kimi，文件上传列表可以在设置页面看到（初版暂时没做文件上传去重处理），不需要的可以删除。文件本身也会下载到data目录，每篇论文对应一个文件夹，里面存放pdf以及数据json，避免每次都要重新调用接口。
+左侧可以进行翻译，右侧是[论文十问](http://leafw.cn/2023/12/25/%e5%88%86%e4%ba%ab%e4%b8%a4%e4%b8%aa%e9%98%85%e8%af%bb%e8%ae%ba%e6%96%87%e7%9a%84%e6%96%b9%e6%b3%95/)的模板，使用初始化的模型的接口进行问答。
+
+论文十问以及系统prompt的配置均在`prompt_template.py` 中，需要的可以自行修改。
+
+![img_2.png](img_2.png)
+
+新增加了生成所有和导出MD的按钮，方便一次性处理所有问题。
+
+使用了pymupdf抽取了pdf内的内容，不再依赖于kimi的文件管理，主要是kimi的api相对贵了点。
 
 ![img_1.png](img_1.png)
+
+### 支持deepseek（可自己修改其他模型）、kimi以及本地使用ollama部署的模型
+
+``` python
+current_llm = KimiLlm() if use_kimi else OllamaLlm('qwen') if use_ollama else OpenAiLlm('deepseek')
+```
+
+- 只要是支持OpenAI的模型，均可以使用OpenAiLlm的实现，在config里面配置对应的model_name,api_key以及base_url即可。
+- Kimi 因为有自己的文件管理接口，因此使用了单独的实现类,也只有使用kimi的情况下才可以使用设置页面
+- Ollama的base_url就是ollama服务的地址
 
 使用方式：
 
 ``` shell
-streamlit run arxiv.py
+streamlit run main.py
 ```
 
-## 后续计划
-1. arxiv helper 支持跳转到 kimi 聊天，并带上已经进行过的论文十问;
-2. 论文上传去重
-3. 本地论文管理（待定）
+## 3. 使用flow.py 一键生成功能2里面需要的Markdown文档。
+flow.py 就是将2里面的所有功能顺序的放到了一起，修改里面的url即可等待生成需要的论文标题摘要以及对应的QA。
+
+由于Streamlit的限制感觉还是太多了，想要做个更成熟的web产品还是得用正经的前端，包括后端可能也要用自己的主业Java，后续会开发一套成熟一点的Java编写的Web平台。

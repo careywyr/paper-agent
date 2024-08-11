@@ -9,7 +9,7 @@ import json
 
 class ArxivData:
     def __init__(self, file_path: str, arxiv_id: str, title: str, abstract: str, file_id: str = '',
-                 title_abstract_cn: str = '', content: str = '', faq=None):
+                 title_abstract_cn: str = '', content: str = '', faq=None, chat_history=None):
         self.file_path = file_path
         self.arxiv_id = arxiv_id
         self.title = title
@@ -18,6 +18,7 @@ class ArxivData:
         self.title_abstract_cn = title_abstract_cn
         self.content = content
         self.faq = faq if faq is not None else {}
+        self.chat_history = chat_history if chat_history is not None else {}
 
     def to_dict(self):
         return {
@@ -28,7 +29,8 @@ class ArxivData:
             'abstract': self.abstract,
             'title_abstract_cn': self.title_abstract_cn,
             'content': self.content,
-            'faq': self.faq
+            'faq': self.faq,
+            'chat_history': self.chat_history
         }
 
     @classmethod
@@ -41,7 +43,8 @@ class ArxivData:
             file_id=data.get('file_id', ''),
             title_abstract_cn=data.get('title_abstract_cn', ''),
             content=data.get('content', ''),
-            faq=data.get('faq', {})
+            faq=data.get('faq', {}),
+            chat_history=data.get('chat_history', {})
         )
 
     def save_to_json(self):

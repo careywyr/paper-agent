@@ -65,7 +65,7 @@ def run(url: str):
 
     for question in paper_questions:
         print(f'回答问题: {question}')
-        answer = current_llm.chat_pdf(question, arxiv_data.content)
+        answer, _ = current_llm.chat_pdf(question, arxiv_data.content)
         arxiv_data.faq[question] = answer
         item = '### ' + question + '\n' + answer + '\n\n'
         template_format += item

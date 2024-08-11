@@ -7,15 +7,16 @@
 import requests
 import os
 import utils
+from utils import get_data_from_arxiv_id
 from urllib.parse import urlparse
 import streamlit as st
 from streamlit_option_menu import option_menu
-import pandas as pd
-from prompt_template import paper_questions
-from pojo import load_Arxiv_data, ArxivData
+from prompt_template import paper_questions, paper_system
 from api import arxiv_client
 from llm.model import OpenAiLlm, KimiLlm, OllamaLlm
 from llm.agent import TranslaterAgent, PaperAnswerAgent
+from front.st_chat import chatting
+from front.kimi_file_manage import settings
 
 # 是否使用Kimi
 use_kimi = False
@@ -27,11 +28,6 @@ md_template_path = 'md_template.md'
 current_llm = KimiLlm() if use_kimi else OllamaLlm('qwen') if use_ollama else OpenAiLlm('deepseek')
 trans_agent = TranslaterAgent(llm=current_llm)
 paper_answer_agent = PaperAnswerAgent(llm=current_llm)
-
-
-def get_data_from_arxiv_id(arxiv_id: str) -> ArxivData:
-    json_path = utils.arxiv_dir_path(arxiv_id) + os.sep + arxiv_id + '.json'
-    return load_Arxiv_data(json_path)
 
 
 def download(url):
@@ -105,7 +101,7 @@ def trans(title: str, abstract: str, arxiv_id: str) -> str:
 def answer_pdf(index: int, file_id: str, arxiv_id: str) -> (str, str):
     arxiv_data = get_data_from_arxiv_id(arxiv_id)
     if arxiv_data is None:
-        return '系统异常'
+        return '系统异常', '', []
 
     if arxiv_data.content is None or len(arxiv_data.content) == 0:
         if isinstance(current_llm, KimiLlm):
@@ -120,6 +116,7 @@ def answer_pdf(index: int, file_id: str, arxiv_id: str) -> (str, str):
             arxiv_data.save_to_json()
 
     question = paper_questions[index]
+
     if arxiv_data.faq is not None and arxiv_data.faq.get(question):
         return file_id, arxiv_data.faq.get(question)
 
@@ -127,16 +124,6 @@ def answer_pdf(index: int, file_id: str, arxiv_id: str) -> (str, str):
     arxiv_data.faq[question] = answer
     arxiv_data.save_to_json()
     return file_id, answer
-
-
-# 创建显示文件列表的 DataFrame
-def create_files_dataframe(files):
-    data = {
-        "ID": [file.id for file in files],
-        "FileName": [file.filename for file in files]
-    }
-    df = pd.DataFrame(data)
-    return df
 
 
 def export_md(arxiv_id: str):
@@ -241,7 +228,8 @@ def home():
                     submitted = st.form_submit_button("生成")
                     if submitted:
                         with st.spinner("生成中，请稍候..."):
-                            _, result = answer_pdf(i, st.session_state.file_id, st.session_state.arxiv_id)
+                            _, result = answer_pdf(i, st.session_state.file_id,
+                                                   st.session_state.arxiv_id)
                             st.session_state.responses[i] = result
                             st.rerun()
 
@@ -258,42 +246,26 @@ def home():
         st.rerun()
 
 
-# 定义设置页面
-def settings():
-    st.markdown("<h1 style='text-align: center; font-size: 32px;'>Kimi文件管理(存在Kimi才可使用)</h1>",
-                unsafe_allow_html=True)
-
-    files = current_llm.list_files()
-    df = create_files_dataframe(files)
-
-    # 显示文件表格
-    for index, row in df.iterrows():
-        col1, col2, col3 = st.columns([3, 7, 2])
-        col1.write(row["ID"])
-        col2.write(row["FileName"])
-        button_placeholder = col3.empty()
-        if button_placeholder.button("删除", key=row["ID"]):
-            current_llm.remove_file(row["ID"])
-            st.rerun()
-
-
 # 主函数
 def main():
     st.set_page_config(layout="wide")
+
+    options = ["主页", "聊天", "设置"]
     with st.sidebar:
         selected = option_menu(
             menu_title="菜单",  # 菜单标题
-            options=["主页", "设置"],  # 菜单选项
-            icons=["house", "gear"],  # 菜单图标
+            options=options,  # 菜单选项
+            icons=["house", "robot", "gear"],  # 菜单图标
             menu_icon="cast",  # 菜单图标
             default_index=0,  # 默认选中菜单项
             orientation="vertical",  # 菜单方向
         )
-
-    if selected == "主页":
+    if selected == '主页':
         home()
-    elif selected == "设置":
-        settings()
+    elif selected == '聊天':
+        chatting(st.session_state.arxiv_id if 'arxiv_id' in st.session_state else '')
+    elif selected == '设置':
+        settings(current_llm)
 
 
 if __name__ == "__main__":

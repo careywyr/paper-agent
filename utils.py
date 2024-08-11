@@ -7,6 +7,7 @@
 import os
 import pymupdf
 import re
+from pojo import load_Arxiv_data, ArxivData
 
 data_dir = './data'
 
@@ -46,3 +47,8 @@ def read_pdf(file_path: str) -> str:
 
 def arxiv_dir_path(arxiv_id: str, root_dir: str = data_dir) -> str:
     return root_dir + os.sep + arxiv_id
+
+
+def get_data_from_arxiv_id(arxiv_id: str) -> ArxivData:
+    json_path = arxiv_dir_path(arxiv_id) + os.sep + arxiv_id + '.json'
+    return load_Arxiv_data(json_path)

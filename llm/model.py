@@ -6,7 +6,8 @@
 """
 from abc import ABC, abstractmethod
 
-from openai import OpenAI
+from openai import OpenAI, Stream
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 import requests
 import prompt_template
 import os
@@ -39,7 +40,7 @@ class LLM(ABC):
         self.base_url = conf['base_url']
 
     @abstractmethod
-    def chat(self, message: str, system_prompt: str = "") -> str:
+    def chat(self, message: str, system_prompt: str = "", history=None, stream=False) -> str | Stream[ChatCompletionChunk]:
         pass
 
     @abstractmethod
@@ -52,19 +53,21 @@ class OpenAiLlm(LLM):
         super().__init__(model_name)
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
-    def chat(self, message: str, system_prompt: str = "") -> str:
+    def chat(self, message: str, system_prompt: str = "", history=None, stream=False) -> str | Stream[ChatCompletionChunk]:
         response = self.client.chat.completions.create(
             model=self.model_name,
-            messages=[
+            messages=history if history is not None else [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": message},
             ],
-            stream=False
+            stream=stream
         )
+        if stream:
+            return response
         return response.choices[0].message.content
 
     def chat_pdf(self, message: str, file_content) -> str:
-        messages = [
+        default_history = [
             {
                 "role": "system",
                 "content": prompt_template.paper_system
@@ -72,16 +75,18 @@ class OpenAiLlm(LLM):
             {
                 "role": "system",
                 "content": file_content,
-            },
-            {"role": "user", "content": message},
+            }
         ]
+        messages = default_history.copy()
+        messages.append({"role": "user", "content": message})
 
         completion = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
             stream=False
         )
-        return completion.choices[0].message.content
+        res = completion.choices[0].message.content
+        return res
 
 
 class KimiLlm(OpenAiLlm):
@@ -125,7 +130,7 @@ class OllamaLlm(LLM):
         response = requests.post(self.base_url + '/api/chat', json=data)
         return response.json()['message']['content']
 
-    def chat(self, message: str, system_prompt: str = "") -> str:
+    def chat(self, message: str, system_prompt: str = "", history=None, stream=False) -> str:
         data = {
             "model": self.model_name,
             "messages": [
@@ -135,7 +140,7 @@ class OllamaLlm(LLM):
                     "content": message
                 }
             ],
-            "stream": False
+            "stream": stream
         }
         response = requests.post(self.base_url + '/api/chat', json=data)
         res = response.json()['message']['content']

@@ -11,7 +11,7 @@ from utils import get_data_from_arxiv_id
 from urllib.parse import urlparse
 import streamlit as st
 from streamlit_option_menu import option_menu
-from prompt_template import paper_questions, paper_system
+from prompt_template import paper_questions
 from api import arxiv_client
 from llm.model import OpenAiLlm, KimiLlm, OllamaLlm
 from llm.agent import TranslaterAgent, PaperAnswerAgent

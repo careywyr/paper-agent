@@ -115,6 +115,22 @@ class OllamaLlm(LLM):
     def __init__(self, model_name: str):
         super().__init__(model_name)
 
+    def chat(self, message: str, system_prompt: str = "", history=None, stream=False) -> str:
+        data = {
+            "model": self.model_name,
+            "messages": history if history is not None else [
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ],
+            "stream": stream
+        }
+        response = requests.post(self.base_url + '/api/chat', json=data)
+        res = response.json()['message']['content']
+        return res
+
     def chat_pdf(self, message: str, file_content) -> str:
         data = {
             "model": self.model_name,
@@ -129,20 +145,3 @@ class OllamaLlm(LLM):
         }
         response = requests.post(self.base_url + '/api/chat', json=data)
         return response.json()['message']['content']
-
-    def chat(self, message: str, system_prompt: str = "", history=None, stream=False) -> str:
-        data = {
-            "model": self.model_name,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": message
-                }
-            ],
-            "stream": stream
-        }
-        response = requests.post(self.base_url + '/api/chat', json=data)
-        res = response.json()['message']['content']
-        print(res)
-        return res

@@ -14,7 +14,7 @@ from utils import (
     read_pdf,
     arxiv_dir_path,
 )
-from llm.model import KimiLlm, DeepseekLlm
+from llm.model import KimiLlm, DeepseekLlm, OllamaLlm
 from llm.agent import TranslaterAgent, PaperAnswerAgent
 from front.st_chat import chatting
 from front.kimi_file_manage import settings
@@ -23,6 +23,7 @@ from prompt_template import paper_questions
 import requests
 from urllib.parse import urlparse
 from api import arxiv_client
+from utils.config_manager import ConfigManager
 
 data_dir = "./data"
 md_template_path = "md_template.md"
@@ -31,11 +32,24 @@ md_template_path = "md_template.md"
 def get_current_llm():
     """获取当前LLM实例，如果不存在或初始化失败则返回None"""
     if "current_llm" not in st.session_state:
+        config_manager = ConfigManager()
+        active_model = config_manager.get("active_model", "deepseek")
+
         try:
-            st.session_state.current_llm = DeepseekLlm()  # 默认使用 DeepSeek
+            if active_model == "kimi":
+                st.session_state.current_llm = KimiLlm()
+            elif active_model == "deepseek":
+                st.session_state.current_llm = DeepseekLlm()
+            elif active_model == "ollama":
+                # 使用配置中的第一个模型
+                models = config_manager.get("ollama", {}).get("models", ["qwen"])
+                model_name = models[0] if models else "qwen"
+                st.session_state.current_llm = OllamaLlm(model_name)
+            else:
+                st.session_state.current_llm = DeepseekLlm()  # 默认使用 DeepSeek
         except ValueError as e:
-            st.error(f"初始化DeepSeek模型失败: {e}")
-            st.error("请先在设置页面配置DeepSeek API密钥")
+            st.error(f"初始化模型失败: {e}")
+            st.error("请先在设置页面配置相应的API密钥")
             st.session_state.current_llm = None
     return st.session_state.current_llm
 
@@ -96,13 +110,14 @@ def trans(title: str, abstract: str, arxiv_id: str) -> str:
     arxiv_data = get_data_from_arxiv_id(arxiv_id)
     if arxiv_data is None:
         return "系统异常"
-
+    print("--------")
     # 如果翻译过就直接拿翻译的
     if arxiv_data.title_abstract_cn is not None and arxiv_data.title_abstract_cn != "":
         return arxiv_data.title_abstract_cn
 
     content = f"## {title}\n{abstract}"
     current_llm = get_current_llm()
+    print(current_llm)
     if current_llm:
         trans_agent = TranslaterAgent(llm=current_llm)
         translated = trans_agent.run(content)

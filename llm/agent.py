@@ -4,6 +4,7 @@
 @date    : 2024-07-22
 @author  : leafw
 """
+
 from llm.model import LLM
 import prompt_template
 import utils

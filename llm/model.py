@@ -27,12 +27,12 @@ llm_config = {
     "deepseek-r1": {
         "model_name": "deepseek-r1:32b",
         "api_key": "",
-        "base_url": "http://localhost:11434",
+        "base_url": "http://127.0.0.1:11434",
     },
     "qwen": {
         "model_name": "qwen",
         "api_key": "",
-        "base_url": "http://localhost:11434",
+        "base_url": "http://127.0.0.1:11434",
     },
 }
 
@@ -45,7 +45,7 @@ class LLM(ABC):
             conf = {
                 "model_name": model_name,
                 "api_key": "",
-                "base_url": "http://localhost:11434",
+                "base_url": "http://127.0.0.1:11434",
             }
         self.model_name = conf["model_name"]
         self.api_key = conf["api_key"]
@@ -112,13 +112,11 @@ class OpenAiLlm(LLM):
             messages=[
                 {
                     "role": "system",
-                    "content": prompt_template.paper_system_prompt,
+                    "content": prompt_template.paper_system,
                 },
                 {
                     "role": "user",
-                    "content": prompt_template.paper_user_prompt.format(
-                        paper_content=file_content, question=message
-                    ),
+                    "content": prompt_template.build_paper(file_content, message),
                 },
             ],
         )
@@ -207,13 +205,11 @@ class KimiLlm(LLM):
             messages=[
                 {
                     "role": "system",
-                    "content": prompt_template.paper_system_prompt,
+                    "content": prompt_template.paper_system,
                 },
                 {
                     "role": "user",
-                    "content": prompt_template.paper_user_prompt.format(
-                        paper_content=file_content, question=message
-                    ),
+                    "content": prompt_template.build_paper(file_content, message),
                 },
             ],
         )
@@ -265,13 +261,11 @@ class DeepseekLlm(LLM):
             messages=[
                 {
                     "role": "system",
-                    "content": prompt_template.paper_system_prompt,
+                    "content": prompt_template.paper_system,
                 },
                 {
                     "role": "user",
-                    "content": prompt_template.paper_user_prompt.format(
-                        paper_content=file_content, question=message
-                    ),
+                    "content": prompt_template.build_paper(file_content, message),
                 },
             ],
         )
@@ -301,6 +295,7 @@ class OllamaLlm(LLM):
         }
 
         try:
+            print(data)
             response = requests.post(url, json=data)
             response.raise_for_status()
             return response.json()["message"]["content"]
@@ -310,25 +305,25 @@ class OllamaLlm(LLM):
 
     def chat_pdf(self, message: str, file_content) -> str:
         url = f"{self.base_url}/api/chat"
-
+        prompt = prompt_template.build_paper(file_content, message)
+        print(len(prompt))
         data = {
             "model": self.model_name,
             "messages": [
                 {
                     "role": "system",
-                    "content": prompt_template.paper_system_prompt,
+                    "content": prompt_template.paper_system,
                 },
                 {
                     "role": "user",
-                    "content": prompt_template.paper_user_prompt.format(
-                        paper_content=file_content, question=message
-                    ),
+                    "content": prompt_template.build_paper(file_content, message),
                 },
             ],
         }
 
         try:
             response = requests.post(url, json=data)
+            print(response.json())
             response.raise_for_status()
             return response.json()["message"]["content"]
         except Exception as e:

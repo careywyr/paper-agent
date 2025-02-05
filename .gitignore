@@ -3,3 +3,4 @@ data/
 output.md
 __pycache__
 .DS_Store
+sys.conf

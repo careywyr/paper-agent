@@ -29,6 +29,11 @@ llm_config = {
         "api_key": "",
         "base_url": "http://127.0.0.1:11434",
     },
+    "qwen2.5:32b": {
+        "model_name": "qwen2.5:32b",
+        "api_key": "",
+        "base_url": "http://127.0.0.1:11434",
+    },
     "qwen": {
         "model_name": "qwen",
         "api_key": "",
@@ -139,43 +144,6 @@ class KimiLlm(LLM):
             return True
         except Exception as e:
             print(f"连接检查失败: {e}")
-            return False
-
-    def upload_file(self, file_path: str) -> str:
-        """上传文件到Kimi"""
-        try:
-            with open(file_path, "rb") as file:
-                response = self.client.files.create(file=file, purpose="assistants")
-                return response.id
-        except Exception as e:
-            print(f"上传文件失败: {e}")
-            return ""
-
-    def extract_file(self, file_id: str) -> str:
-        """从Kimi提取文件内容"""
-        try:
-            response = self.client.files.retrieve_content(file_id=file_id)
-            return response.content
-        except Exception as e:
-            print(f"提取文件内容失败: {e}")
-            return ""
-
-    def list_files(self) -> list:
-        """列出Kimi上的文件"""
-        try:
-            response = self.client.files.list()
-            return response.data
-        except Exception as e:
-            print(f"获取文件列表失败: {e}")
-            return []
-
-    def remove_file(self, file_id: str) -> bool:
-        """从Kimi删除文件"""
-        try:
-            self.client.files.delete(file_id=file_id)
-            return True
-        except Exception as e:
-            print(f"删除文件失败: {e}")
             return False
 
     def chat(

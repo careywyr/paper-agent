@@ -17,7 +17,6 @@ from utils import (
 from llm.model import KimiLlm, DeepseekLlm, OllamaLlm
 from llm.agent import TranslaterAgent, PaperAnswerAgent
 from front.st_chat import chatting
-from front.kimi_file_manage import settings
 from front.model_settings import model_settings
 from prompt_template import paper_questions
 import requests
@@ -135,16 +134,9 @@ def answer_pdf(index: int, file_id: str, arxiv_id: str) -> (str, str):
 
     if arxiv_data.content is None or len(arxiv_data.content) == 0:
         current_llm = get_current_llm()
-        if current_llm and isinstance(current_llm, DeepseekLlm):
-            file_id = current_llm.upload_file(arxiv_data.file_path)
-            file_content = current_llm.extract_file(file_id)
-            arxiv_data.file_id = file_id
-            arxiv_data.content = file_content
-            arxiv_data.save_to_json()
-        else:
-            file_content = read_pdf(arxiv_data.file_path)
-            arxiv_data.content = file_content
-            arxiv_data.save_to_json()
+        file_content = read_pdf(arxiv_data.file_path)
+        arxiv_data.content = file_content
+        arxiv_data.save_to_json()
 
     question = paper_questions[index]
 
@@ -320,9 +312,9 @@ def main():
             default_index=0,
         )
         if selected == "设置":
-            selected_settings = option_menu(
+            option_menu(
                 None,
-                ["模型设置", "Kimi文件管理"],
+                ["模型设置"],
                 icons=["sliders", "folder"],
                 menu_icon="cast",
                 default_index=0,
@@ -335,15 +327,8 @@ def main():
     elif selected == "聊天":
         chatting(st.session_state.arxiv_id if "arxiv_id" in st.session_state else "")
     elif selected == "设置":
-        if selected_settings == "Kimi文件管理":
-            current_llm = get_current_llm()
-            if current_llm and isinstance(current_llm, KimiLlm):
-                settings(current_llm)
-            else:
-                st.error("请先在模型设置中配置并启用Kimi")
-        else:  # 模型设置
-            current_llm = get_current_llm()
-            model_settings(current_llm)
+        current_llm = get_current_llm()
+        model_settings(current_llm)
 
 
 if __name__ == "__main__":

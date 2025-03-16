@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-@file    : hf.py
-@date    : 2024-07-11
+@file    : dify.py
+@date    : 2025-03-09
 @author  : leafw
 """
 
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from llm.model import OllamaLlm, OpenAiLlm
-from llm.agent import TranslaterAgent
 
 base_url = "https://huggingface.co"
-deepseek = OpenAiLlm("deepseek")
-# deepseek = OllamaLlm("deepseek-r1")
-# deepseek = OllamaLlm("qwen2.5:32b")
-trans_agent = TranslaterAgent(deepseek)
-
 
 class Article:
     def __init__(self, title, arxiv_link, abstract):
@@ -93,32 +86,14 @@ def weekly_get():
     return [day.strftime("%Y-%m-%d") for day in weekdays]
 
 
-def weekly_paper(output_path=""):
-    days = weekly_get()
-    if output_path == "":
-        output_path = days[0].replace("-", "") + "-" + days[-1].replace("-", "") + ".md"
-    # 这一份是防止翻译不太好或者其他问题先留存下
-    en_articles_content = []
-    with open("output.md", "w") as en:
-        for day in days:
-            print(f"开始处理日期: {day}")
-            url = base_url + "/papers?date=" + day
-            article_list = home_parse(url)
-            print(f"{day} 主页解析完毕")
-            for item in article_list:
-                print(f"解析文章{item['title']}开始")
-                article = parse_article(item["link"], item["title"])
-                content = en_content(article)
-                en_articles_content.append(content)
-                en.write(content)
-                print(f"解析文章{item['title']}完毕")
-            print(f"日期 {day} 处理结束")
-    print("英文输出完毕")
-    # 我只要这个
-    with open(output_path, "w") as f:
-        for en_article in en_articles_content:
-            zh = trans_agent.run(en_article)
-            f.write(zh + "\n\n")
+days = weekly_get()
 
-
-weekly_paper()
+en_articles_content = []
+for day in days:
+    url = base_url + "/papers?date=" + day
+    article_list = home_parse(url)
+    for item in article_list:
+        article = parse_article(item["link"], item["title"])
+        content = en_content(article)
+        en_articles_content.append(content)
+        print(content)

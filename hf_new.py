@@ -25,13 +25,12 @@ class Article:
 
 
 
-
 def home_parse(url):
     """
     获取文章列表
     :return:
     """
-    response = requests.get(url + "/papers/week/2025-W11")
+    response = requests.get(url + "/papers/week/2025-W20")
     html_content = response.text
 
     # 解析HTML内容

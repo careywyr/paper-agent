@@ -4,3 +4,19 @@ output.md
 __pycache__
 .DS_Store
 sys.conf
+
+# Next.js 相关
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.vercel/
+web/.turbo/
+web/coverage/
+web/.env
+web/.env.*
+web/!.env.example
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/.pnpm-debug.log*

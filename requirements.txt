@@ -8,3 +8,11 @@ streamlit_option_menu==0.3.13
 bs4~=0.0.2
 arxiv~=2.1.3
 pymupdf~=1.24.8
+
+# API依赖
+flask==2.3.3
+sqlalchemy==2.0.27
+flask-sqlalchemy==3.1.1
+flask-migrate==4.0.5
+flask-cors==4.0.0
+python-dotenv==1.0.1

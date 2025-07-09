@@ -5,7 +5,6 @@
 @author  : leafw
 """
 from .arxiv_utils import (
-    ensure_directory_exists,
     extract_yy_text,
     read_pdf,
     arxiv_dir_path,

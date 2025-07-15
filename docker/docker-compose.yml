@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  db:
+    image: pgvector/pgvector:0.8.0-pg17
+    container_name: pgvector-db
+    environment:
+      POSTGRES_PASSWORD: paper-agent
+      POSTGRES_USER: postgres
+      POSTGRES_DB: pa
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - /Users/leafw/Documents/docker_data/pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

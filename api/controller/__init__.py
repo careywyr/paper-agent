@@ -7,4 +7,4 @@ from flask import Blueprint
 main_bp = Blueprint('main', __name__, url_prefix='/api')
 
 # 导入路由
-from api.routes import paper_routes
+from api.controller import paper_controller, file_controller

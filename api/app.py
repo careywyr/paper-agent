@@ -1,6 +1,10 @@
 """
 Flask应用主入口
 """
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from api import create_app, db
 
 app = create_app()
@@ -21,4 +25,4 @@ def init_db():
     print('数据库已初始化')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=6000)

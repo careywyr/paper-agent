@@ -44,7 +44,7 @@ def create_app(test_config=None):
     CORS(app)
 
     # 注册蓝图
-    from api.routes import main_bp
-    app.register_blueprint(main_bp)
+    from controller.home_controller import home_bp
+    app.register_blueprint(home_bp)
 
     return app

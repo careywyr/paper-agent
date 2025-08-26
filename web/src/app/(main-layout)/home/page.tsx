@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from 'react';
 import { ShimmerButton } from '@/components/magicui/shimmer-button';
 import { AnimatedGridPattern } from '@/components/magicui/animated-grid-pattern';
 import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text';
 
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<'search' | 'read'>('search');
+  
   const recommendedSearches: string[] = [
     '人工智能',
     '机器学习',
@@ -37,15 +40,49 @@ export default function HomePage() {
           </h1>
         </div>
 
-        {/* 搜索框 */}
+        {/* Tab切换 */}
+        <div className="flex justify-center mb-6">
+          <div className="flex bg-white/10 backdrop-blur-sm rounded-full p-1 border border-gray-200/20">
+            <button
+              onClick={() => setActiveTab('search')}
+              className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                activeTab === 'search'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              搜索
+            </button>
+            <button
+              onClick={() => setActiveTab('read')}
+              className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                activeTab === 'read'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              阅读
+            </button>
+          </div>
+        </div>
+
+        {/* 输入框区域 */}
         <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="输入关键词搜索..."
-            className="flex-1 px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
-          />
+          {activeTab === 'search' ? (
+            <input
+              type="text"
+              placeholder="输入关键词搜索..."
+              className="flex-1 px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+            />
+          ) : (
+            <input
+              type="text"
+              placeholder="输入论文链接或上传文件进行阅读..."
+              className="flex-1 px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+            />
+          )}
           <ShimmerButton className="px-8 py-3 rounded-full">
-            搜索
+            {activeTab === 'search' ? '搜索' : '阅读'}
           </ShimmerButton>
         </div>
 

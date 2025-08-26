@@ -96,6 +96,6 @@ def parse_pdf(pdf_path: str, output_dir: str = None, lang_list: list = None, bac
         files['files'][1].close()
 
 if __name__ == "__main__":
-    resp = parse_pdf("/Users/leafw/Documents/workspace/paper-agent/api/llm/tools/test.pdf", output_dir='/Users/leafw/Documents/workspace/paper-agent/data/aaa', return_md=True, return_middle_json=False, return_model_output=False, return_content_list=True, return_images=False, formula_enable=True, table_enable=True)
+    resp = parse_pdf("/Users/leafw/Documents/workspace/paper-agent/api/llm/tools/test.pdf", output_dir='./', return_md=True, return_middle_json=False, return_model_output=False, return_content_list=True, return_images=False, formula_enable=True, table_enable=True)
 
     print(resp.get('results').get('test').get('content_list'))

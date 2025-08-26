@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Paper Agent - 智能搜索",
-  description: "一个现代化的搜索引擎界面",
+  title: "Paper Agent - Make paper reading easier",
+  description: "Make paper reading easier",
 };
 
 export default function RootLayout({

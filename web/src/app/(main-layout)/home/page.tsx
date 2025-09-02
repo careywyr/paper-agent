@@ -71,7 +71,7 @@ export default function HomePage() {
           {activeTab === 'search' ? (
             <input
               type="text"
-              placeholder="输入关键词搜索..."
+              placeholder="你想搜索哪方面的论文？..."
               className="flex-1 px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
             />
           ) : (

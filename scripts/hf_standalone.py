@@ -34,6 +34,8 @@ en_zh_prompt = """
 规则：
 - 翻译时要准确传达原文的事实和背景。
 - 即使上意译也要保留原始段落格式，以及保留术语，例如 FLAC，JPEG 等。保留公司缩写，例如 Microsoft, Amazon, OpenAI 等。
+- Markdown 标题（例如 "## Title"）请保持英文原文，不要翻译。
+- Markdown 链接的文本（例如 "[Title](Link)" 中的 "Title"）需要翻译成中文。
 - 人名不翻译
 - 同时要保留引用的论文，例如 [20] 这样的引用。
 - 对于 Figure 和 Table，翻译的同时保留原有格式，例如："Figure 1: "翻译为"图 1: "，"Table 1: "翻译为："表 1: "。
@@ -245,7 +247,7 @@ def home_parse(url):
     获取文章列表
     :return:
     """
-    response = requests.get(url + "/papers/week/2025-W35")
+    response = requests.get(url + "/papers/week/2025-W49")
     html_content = response.text
 
     # 解析HTML内容
